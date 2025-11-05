@@ -8,7 +8,7 @@ Add your gmail addr and the app password
 
 ## Installation
 You need the json, smtplib and email library
-'''bash
+
 git clone https://github.com/Nage-Sh/email_sender.git
 cd email_sender.git
 python email_automator.py
