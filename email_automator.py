@@ -35,8 +35,8 @@ def check_json_format(data):
 # Python dict to the JSON
 def dumps_json(data):
     try:
-        with open('unemails.json', 'w') as file:
-            data_json = json.dumps(data)
+        with open('unsend_emails.json', 'w') as file:
+            data_json = json.dumps(data, indent=4)
             file.write(data_json)
     except Exception as e:
         print("Exception occured in undelivered mails")
