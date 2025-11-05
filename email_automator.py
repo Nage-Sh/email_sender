@@ -31,6 +31,15 @@ def check_json_format(data):
             return rows
     except Exception:
         print("The json format should be list of dict items")
+
+# Python dict to the JSON
+def dumps_json(data):
+    try:
+        with open('unemails.json', 'w') as file:
+            data_json = json.dumps(data)
+            file.write(data_json)
+    except Exception as e:
+        print("Exception occured in undelivered mails")
         
 # Needed variables
 data = read_json('emails.json')
@@ -50,27 +59,39 @@ server = smtplib.SMTP(SMTP_SERVER, GMAIL_PORT)
 server.starttls()
 server.login(sender_email, sender_email_app_password)
 
+# Undelivered mails
+ud_emails = []
+
 for i in range(len_verified_data):
-    if verified_data[i]['status'] == 1: # Send mails only for the accepted ones
-        receiver_email = verified_data[i]['email']
-        subject = "Accepted Application"
-        body = f""" HI {verified_data[i]['name']}"""
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = receiver_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'html'))
-        server.sendmail(sender_email, receiver_email, msg.as_string())
-    else:
-        receiver_email = verified_data[i]['email']
-        subject = "Rejected Application"
-        body = f""" HI {verified_data[i]['name']}"""
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = receiver_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'html'))
-        server.sendmail(sender_email, receiver_email, msg.as_string())
+    try:
+        if verified_data[i]['status'] == 1: # Send mails only for the accepted ones
+            receiver_email = verified_data[i]['email']
+            subject = "Accepted Application"
+            body = f""" HI {verified_data[i]['name']}"""
+            msg = MIMEMultipart()
+            msg['From'] = sender_email
+            msg['To'] = receiver_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(body, 'html'))
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+        else: # Send mails only for rejected ones
+            receiver_email = verified_data[i]['email']
+            subject = "Rejected Application"
+            body = f""" HI {verified_data[i]['name']}"""
+            msg = MIMEMultipart()
+            msg['From'] = sender_email
+            msg['To'] = receiver_email
+            msg['Subject'] = subject
+            msg.attach(MIMEText(body, 'html'))
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+    except Exception as e:
+        ud_emails.append({
+            'email':verified_data[i]['email'], 
+             'name':verified_data[i]['name'],
+             'status':verified_data[i]['status']
+             })
+        dumps_json(ud_emails)
+        print("The emails that could not be sent is in the JSON file called as unemails.json")
 
 server.quit()
 print("All mails sent succesfully")
